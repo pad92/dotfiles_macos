@@ -1,0 +1,35 @@
+#lvs() {
+#   ssh -t sshgate@belfort.nexen.net nexen@nslvs$1.nexen.net
+#}
+#
+#sshb() {
+#   ssh -t sshgate@belfort.nexen.net nexen@$1.nexen.net
+#}
+#
+#alias happy='ssh -t sshgate@belfort.nexen.net rescue@happy.nexen.net'
+
+rtms() {
+    if [ -z "$1" ]; then
+        echo 'Usage : rtms PORT (USER) (TUNNEL 80:127.0.0.1:80)'
+    else
+        if [ -z "$2" ]; then
+            SSH_LOGIN='admisec'
+        else
+            SSH_LOGIN=$2
+        fi
+        if [ -x /usr/bin/keychain ]; then
+            eval $(/usr/bin/keychain --eval --agents ssh -Q --quiet ~/.ssh/id_rsa_isec)
+        fi
+        if [ -z "$3" ]; then
+            ssh 192.168.36.36 -l $SSH_LOGIN -p $1
+        else
+            sudo ssh 192.168.36.36 -l $SSH_LOGIN -p $1 -L $3
+        fi
+    fi
+}
+
+if [ -d "/Users/pascal/Dropbox/Applications/bin" ]; then
+    export PATH=$PATH":/Users/pascal/Dropbox/Applications/bin"
+fi
+
+alias mysql_zbox="mysql --defaults-group-suffix=zbox"

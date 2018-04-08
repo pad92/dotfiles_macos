@@ -1,55 +1,48 @@
-# Path to your oh-my-zsh configuration.
-export ZSH=$HOME/.dotfiles/oh-my-zsh
-# if you want to use this, change your non-ascii font to Droid Sans Mono for Awesome
-# POWERLEVEL9K_MODE='awesome-patched'
-export ZSH_THEME="powerlevel9k/powerlevel9k"
-POWERLEVEL9K_SHORTEN_DIR_LENGTH=2
-# https://github.com/bhilburn/powerlevel9k#customizing-prompt-segments
-# https://github.com/bhilburn/powerlevel9k/wiki/Stylizing-Your-Prompt
-POWERLEVEL9K_LEFT_PROMPT_ELEMENTS=(dir nvm vcs)
-POWERLEVEL9K_RIGHT_PROMPT_ELEMENTS=(status history time)
-# colorcode test
-# for code ({000..255}) print -P -- "$code: %F{$code}This is how your text would look like%f"
-POWERLEVEL9K_NVM_FOREGROUND='000'
-POWERLEVEL9K_NVM_BACKGROUND='072'
-POWERLEVEL9K_SHOW_CHANGESET=true
-#export ZSH_THEME="random"
+export ZSH=${HOME}/.dotfiles/zsh/
+export TERM="xterm-256color"
 
-# Set to this to use case-sensitive completion
-export CASE_SENSITIVE="true"
+export PATH=$PATH:~/.cabal/bin:~/.xmonad/bin
 
-# disable weekly auto-update checks
-# export DISABLE_AUTO_UPDATE="true"
+ZSH_THEME="pad"
 
-# disable colors in ls
-# export DISABLE_LS_COLORS="true"
+plugins=(command-not-found  extract  github  httpie  rsync)
 
-# disable autosetting terminal title.
-export DISABLE_AUTO_TITLE="true"
+export ZSH_CACHE_DIR=${HOME}/.zcache
+source ${ZSH}/init.zsh
 
-# Which plugins would you like to load? (plugins can be found in ~/.dotfiles/oh-my-zsh/plugins/*)
-# Example format: plugins=(rails git textmate ruby lighthouse)
-plugins=(colorize compleat dirpersist autojump git gulp history cp)
+# User configuration
+export LANG=en_US.UTF-8
+export EDITOR='vim'
 
-source $ZSH/oh-my-zsh.sh
+# History
+export HISTCONTROL=erasedups  # Ignore duplicate entries in history
+export HISTFILE=${HOME}/.zsh_history
+export HISTIGNORE="&:ls:ll:la:l.:pwd:exit:clear:clr:[bf]g"
 
-test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
+setopt auto_cd
+setopt extended_history
+setopt hist_expire_dups_first
+setopt hist_ignore_all_dups
+setopt hist_verify
+setopt inc_append_history
+setopt share_history
 
-source /usr/local/opt/nvm/nvm.sh
+setopt SHARE_HISTORY
+setopt APPEND_HISTORY
 
-autoload -U add-zsh-hook
-load-nvmrc() {
-  if [[ -f .nvmrc && -r .nvmrc ]]; then
-    nvm use &> /dev/null
-  elif [[ $(nvm version) != $(nvm version default)  ]]; then
-    nvm use default &> /dev/null
-  fi
-}
-add-zsh-hook chpwd load-nvmrc
-load-nvmrc
 
-# Customize to your needs...
-unsetopt correct
+if [ -f ${HOME}/.zshaliases ]
+then
+  source ${HOME}/.zshaliases
+fi
+if [ -f ${HOME}/.zshenv ]
+then
+  source ${HOME}/.zshenv
+fi
 
-# run fortune on new terminal :)
-fortune
+if [ -f /usr/share/virtualenvwrapper/virtualenvwrapper.sh ]
+then
+  export WORKON_HOME=${HOME}/.virtualenvs
+  export PROJECT_HOME=${HOME}/Devel
+  source /usr/share/virtualenvwrapper/virtualenvwrapper.sh
+fi
