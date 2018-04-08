@@ -115,29 +115,6 @@ if [[ $? = 0 ]]; then
   fi
 fi
 
-MD5_NEWWP=$(md5 img/wallpaper.jpg | awk '{print $4}')
-MD5_OLDWP=$(md5 /System/Library/CoreServices/DefaultDesktop.jpg | awk '{print $4}')
-if [[ "$MD5_NEWWP" != "$MD5_OLDWP" ]]; then
-  read -r -p "Do you want to use the project's custom desktop wallpaper? [Y|n] " response
-  if [[ $response =~ ^(no|n|N) ]];then
-    echo "skipping...";
-    ok
-  else
-    running "Set a custom wallpaper image"
-    # `DefaultDesktop.jpg` is already a symlink, and
-    # all wallpapers are in `/Library/Desktop Pictures/`. The default is `Wave.jpg`.
-    rm -rf ~/Library/Application Support/Dock/desktoppicture.db
-    sudo rm -f /System/Library/CoreServices/DefaultDesktop.jpg > /dev/null 2>&1
-    sudo rm -f /Library/Desktop\ Pictures/El\ Capitan.jpg > /dev/null 2>&1
-    sudo rm -f /Library/Desktop\ Pictures/Sierra.jpg > /dev/null 2>&1
-    sudo rm -f /Library/Desktop\ Pictures/Sierra\ 2.jpg > /dev/null 2>&1
-    sudo cp ./img/wallpaper.jpg /System/Library/CoreServices/DefaultDesktop.jpg;
-    sudo cp ./img/wallpaper.jpg /Library/Desktop\ Pictures/Sierra.jpg;
-    sudo cp ./img/wallpaper.jpg /Library/Desktop\ Pictures/Sierra\ 2.jpg;
-    sudo cp ./img/wallpaper.jpg /Library/Desktop\ Pictures/El\ Capitan.jpg;ok
-  fi
-fi
-
 #####
 # install homebrew (CLI Packages)
 #####
@@ -199,10 +176,6 @@ if [[ "$CURRENTSHELL" != "/usr/local/bin/zsh" ]]; then
   # chsh -s /usr/local/bin/zsh
   sudo dscl . -change /Users/$USER UserShell $SHELL /usr/local/bin/zsh > /dev/null 2>&1
   ok
-fi
-
-if [[ ! -d "./oh-my-zsh/custom/themes/powerlevel9k" ]]; then
-  git clone https://github.com/bhilburn/powerlevel9k.git oh-my-zsh/custom/themes/powerlevel9k
 fi
 
 bot "creating symlinks for project dotfiles..."
@@ -304,7 +277,7 @@ sudo defaults write /Library/Preferences/com.apple.alf stealthenabled -int 1
 #launchctl load /System/Library/LaunchAgents/com.apple.alf.useragent.plist
 
 # Disable IR remote control
-#sudo defaults write /Library/Preferences/com.apple.driver.AppleIRController DeviceEnabled -bool false
+sudo defaults write /Library/Preferences/com.apple.driver.AppleIRController DeviceEnabled -bool false
 
 # Turn Bluetooth off completely
 #sudo defaults write /Library/Preferences/com.apple.Bluetooth ControllerPowerState -int 0
@@ -453,10 +426,10 @@ sudo chflags uchg /Private/var/vm/sleepimage;ok
 bot "Standard System Changes"
 ################################################
 running "always boot in verbose mode (not MacOS GUI mode)"
-sudo nvram boot-args="-v";ok
+sudo nvram boot-args="";ok
 
-running "allow 'locate' command"
-sudo launchctl load -w /System/Library/LaunchDaemons/com.apple.locate.plist > /dev/null 2>&1;ok
+running "disable 'locate' command"
+sudo launchctl unload -w /System/Library/LaunchDaemons/com.apple.locate.plist > /dev/null 2>&1;ok
 
 running "Set standby delay to 24 hours (default is 1 hour)"
 sudo pmset -a standbydelay 86400;ok
@@ -464,15 +437,15 @@ sudo pmset -a standbydelay 86400;ok
 running "Disable the sound effects on boot"
 sudo nvram SystemAudioVolume=" ";ok
 
-running "Menu bar: disable transparency"
-defaults write NSGlobalDomain AppleEnableMenuBarTransparency -bool false;ok
+running "Menu bar: enable transparency"
+defaults write NSGlobalDomain AppleEnableMenuBarTransparency -bool true;ok
 
 running "Menu bar: hide the Time Machine, Volume, User, and Bluetooth icons"
 for domain in ~/Library/Preferences/ByHost/com.apple.systemuiserver.*; do
   defaults write "${domain}" dontAutoLoad -array \
     "/System/Library/CoreServices/Menu Extras/TimeMachine.menu" \
     "/System/Library/CoreServices/Menu Extras/Volume.menu" \
-    "/System/Library/CoreServices/Menu Extras/User.menu"
+    "/System/Library/Core Services/Menu Extras/User.menu"
 done;
 defaults write com.apple.systemuiserver menuExtras -array \
   "/System/Library/CoreServices/Menu Extras/Bluetooth.menu" \
@@ -583,8 +556,8 @@ running "Disable press-and-hold for keys in favor of key repeat"
 defaults write NSGlobalDomain ApplePressAndHoldEnabled -bool false;ok
 
 running "Set a blazingly fast keyboard repeat rate"
-defaults write NSGlobalDomain KeyRepeat -int 2
-defaults write NSGlobalDomain InitialKeyRepeat -int 10;ok
+defaults write NSGlobalDomain KeyRepeat -int 4
+defaults write NSGlobalDomain InitialKeyRepeat -int 15;ok
 
 running "Set language and text formats (english/US)"
 defaults write NSGlobalDomain AppleLanguages -array "en"
@@ -630,10 +603,10 @@ defaults write com.apple.finder QuitMenuItem -bool true;ok
 running "Disable window animations and Get Info animations"
 defaults write com.apple.finder DisableAllAnimations -bool true;ok
 
-running "Set Desktop as the default location for new Finder windows"
+running "Set ${HOME} as the default location for new Finder windows"
 # For other paths, use 'PfLo' and 'file:///full/path/here/'
 defaults write com.apple.finder NewWindowTarget -string "PfDe"
-defaults write com.apple.finder NewWindowTargetPath -string "file://${HOME}/Desktop/";ok
+defaults write com.apple.finder NewWindowTargetPath -string "file://${HOME}/";ok
 
 running "Show hidden files by default"
 defaults write com.apple.finder AppleShowAllFiles -bool true;ok
@@ -708,8 +681,8 @@ bot "Dock & Dashboard"
 running "Enable highlight hover effect for the grid view of a stack (Dock)"
 defaults write com.apple.dock mouse-over-hilite-stack -bool true;ok
 
-running "Set the icon size of Dock items to 36 pixels"
-defaults write com.apple.dock tilesize -int 36;ok
+running "Set the icon size of Dock items to 24 pixels"
+defaults write com.apple.dock tilesize -int 24;ok
 
 running "Change minimize/maximize window effect to scale"
 defaults write com.apple.dock mineffect -string "scale";ok
@@ -773,13 +746,13 @@ bot "Configuring Hot Corners"
 # 12: Notification Center
 
 running "Top left screen corner → Mission Control"
-defaults write com.apple.dock wvous-tl-corner -int 2
+defaults write com.apple.dock wvous-tl-corner -int 0
 defaults write com.apple.dock wvous-tl-modifier -int 0;ok
 running "Top right screen corner → Desktop"
-defaults write com.apple.dock wvous-tr-corner -int 4
+defaults write com.apple.dock wvous-tr-corner -int 10
 defaults write com.apple.dock wvous-tr-modifier -int 0;ok
 running "Bottom right screen corner → Start screen saver"
-defaults write com.apple.dock wvous-br-corner -int 5
+defaults write com.apple.dock wvous-br-corner -int 0
 defaults write com.apple.dock wvous-br-modifier -int 0;ok
 
 ###############################################################################
