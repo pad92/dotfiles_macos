@@ -255,30 +255,6 @@ if [[ -d "/Library/Ruby/Gems/2.0.0" ]]; then
   ok
 fi
 
-# node version manager
-require_brew nvm
-
-# nvm
-require_nvm stable
-
-# always pin versions (no surprises, consistent dev/build machines)
-npm config set save-exact true
-
-#####################################
-# Now we can switch to node.js mode
-# for better maintainability and
-# easier configuration via
-# JSON files and inquirer prompts
-#####################################
-
-bot "installing npm tools needed to run this project..."
-npm install
-ok
-
-bot "installing packages from config.js..."
-node index.js
-ok
-
 running "cleanup homebrew"
 brew cleanup > /dev/null 2>&1
 ok

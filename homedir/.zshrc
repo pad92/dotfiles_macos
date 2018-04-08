@@ -5,7 +5,7 @@ export PATH=$PATH:~/.cabal/bin:~/.xmonad/bin
 
 ZSH_THEME="pad"
 
-plugins=(command-not-found  extract  github  httpie  rsync)
+plugins=(command-not-found  extract  github  httpie  rsync osx)
 
 export ZSH_CACHE_DIR=${HOME}/.zcache
 source ${ZSH}/init.zsh
