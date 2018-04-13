@@ -1,7 +1,9 @@
 export ZSH=${HOME}/.dotfiles/zsh/
 export TERM="xterm-256color"
 
-export PATH=$PATH:~/.cabal/bin:~/.xmonad/bin
+# mkdir ~/.bin
+# curl -qL https://dl.google.com/android/repository/platform-tools-latest-darwin.zip | bsdtar -xvf - -C ~/.bin/
+export PATH=$PATH:~/.bin/platform-tools
 
 ZSH_THEME="pad"
 
